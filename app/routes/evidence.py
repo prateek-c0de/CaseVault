@@ -7,6 +7,7 @@ from app.services.hash_service import HashService
 from app.services.qr_service import QRService
 from app.services.audit_service import AuditService
 from app.middleware.auth import login_required, role_required
+import hashlib
 
 evidence_bp = Blueprint('evidence', __name__)
 
@@ -28,8 +29,13 @@ def view_evidence(evidence_id):
 
 @evidence_bp.route('/register', methods=['GET', 'POST'])
 @login_required
-@role_required(['Administrator', 'Evidence Collector'])
+@role_required(['Administrator', 'Evidence Collector', 'Investigating Officer'])
 def register():
+    prefill_case = None
+    case_id = request.args.get('case_id')
+    if case_id:
+        prefill_case = Case.query.get(case_id)
+        
     if request.method == 'POST':
         case_number = request.form.get('case_number')
         name = request.form.get('name')
@@ -50,12 +56,27 @@ def register():
             
         case = Case.query.filter_by(case_number=case_number).first()
         if not case:
-            case = Case(case_number=case_number, title=f"Case {case_number}")
+            case = Case(
+                case_number=case_number, 
+                title=f"Case {case_number}", 
+                created_by_id=session['user_id']
+            )
             db.session.add(case)
             db.session.commit()
             
         user_id = session['user_id']
         
+        # --- NEW CLOUDINARY LOGIC ---
+        
+        # 1. Calculate the hash and file size in memory BEFORE uploading
+        file_bytes = file.read()
+        file_size = len(file_bytes)
+        sha256_hash = hashlib.sha256(file_bytes).hexdigest()
+        
+        # 2. Reset the file pointer so the StorageService can read it
+        file.seek(0)
+        
+        # 3. Create the database record
         evidence = Evidence(
             case_id=case.id,
             name=name,
@@ -68,20 +89,18 @@ def register():
             collection_location=location,
             collection_device=device,
             status='REGISTERED',
-            sha256_hash='PENDING' # Placeholder, will be updated shortly
+            sha256_hash=sha256_hash,
+            file_size=file_size
         )
         db.session.add(evidence)
         db.session.commit()
         
-        # Save file and calculate hash
+        # 4. Upload file to Cloudinary
         storage = StorageService()
-        filepath = storage.save(file, evidence.evidence_id)
+        cloud_url = storage.save(file, evidence.evidence_id)
         
-        if filepath:
-            evidence.storage_path = filepath
-            import os
-            evidence.file_size = os.path.getsize(filepath)
-            evidence.sha256_hash = HashService.calculate_sha256(filepath)
+        if cloud_url:
+            evidence.storage_path = cloud_url
             
             # Generate QR
             QRService.generate_qr(evidence.evidence_id)
@@ -96,7 +115,7 @@ def register():
                 evidence_hash=evidence.sha256_hash,
                 previous_event_hash='GENESIS'
             )
-            import hashlib
+            
             data = f"GENESIS{evidence.id}None{user_id}REGISTERED"
             custody.current_event_hash = hashlib.sha256(data.encode('utf-8')).hexdigest()
             db.session.add(custody)
@@ -106,11 +125,13 @@ def register():
                 'EVIDENCE_REGISTERED', 
                 {'evidence_id': evidence.evidence_id, 'hash': evidence.sha256_hash}, 
                 user_id=user_id, 
-                evidence_id=evidence.id
+                evidence_id=evidence.id,
+                case_id=case.id
             )
             
-            flash('Evidence registered successfully', 'success')
+            flash('Evidence registered successfully to Cloud Storage!', 'success')
             return redirect(url_for('evidence.view_evidence', evidence_id=evidence.evidence_id))
+        else:
+            flash('Failed to upload evidence to Cloudinary', 'danger')
             
-    return render_template('register_evidence.html')
-
+    return render_template('register_evidence.html', prefill_case=prefill_case)

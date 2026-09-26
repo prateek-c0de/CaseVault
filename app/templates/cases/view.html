@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block header_title %}Case Workspace{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+    <div>
+        <h2 style="margin: 0 0 0.25rem; font-family: var(--font-mono); font-size: 1.75rem; color: var(--accent);">{{ case.case_number }}</h2>
+        <h3 style="margin: 0; color: var(--text-primary); font-size: 1.25rem;">{{ case.title }}</h3>
+    </div>
+    <div>
+        <span class="badge {% if case.status == 'OPEN' %}badge-success{% else %}badge-neutral{% endif %}" style="font-size: 1rem; padding: 0.5rem 1rem;">{{ case.status }}</span>
+    </div>
+</div>
+
+<div class="grid-3" style="margin-bottom: 2rem;">
+    <div class="card col-span-2">
+        <div class="card-header"><h3 class="card-title">Case Details</h3></div>
+        <div class="table-wrapper">
+            <table class="meta-table">
+                <tbody>
+                    <tr><th>Type</th><td>{{ case.case_type }}</td></tr>
+                    <tr><th>Investigating Officer</th><td><strong>{{ case.investigating_officer_name or (case.investigating_officer.name if case.investigating_officer else 'Unassigned') }}</strong></td></tr>
+                    <tr><th>Created By</th><td>{{ case.created_by.name if case.created_by else 'System' }}</td></tr>
+                    <tr><th>Created On</th><td style="font-family: var(--font-mono);">{{ case.created_at.strftime('%Y-%m-%d %H:%M') }}</td></tr>
+                    {% if case.description %}
+                    <tr><th>Description</th><td style="color: var(--text-secondary); font-size: 0.9rem;">{{ case.description }}</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="card" style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 1rem;">
+        <a href="{{ url_for('documents.upload', case_id=case.id) }}" class="btn btn-primary btn-block">&#43; Upload Document</a>
+        <a href="{{ url_for('evidence.register', case_id=case.id) }}" class="btn btn-secondary btn-block">&#43; Register Evidence</a>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom: 2rem; padding: 0;">
+    <div class="card-header"><h3 class="card-title">Legal & Investigation Documents</h3></div>
+    <div class="table-wrapper">
+        <table class="data-table">
+            <colgroup>
+                <col style="width: 18%;">
+                <col style="width: 14%;">
+                <col style="width: 30%;">
+                <col style="width: 10%;">
+                <col style="width: 18%;">
+                <col style="width: 10%;">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>Doc ID</th>
+                    <th>Type</th>
+                    <th>Title</th>
+                    <th>Version</th>
+                    <th>Uploaded Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doc in documents %}
+                <tr>
+                    <td><span class="evidence-id">{{ doc.document_id }}</span></td>
+                    <td><span class="badge badge-neutral">{{ doc.document_type }}</span></td>
+                    <td><strong>{{ doc.title }}</strong></td>
+                    <td>v{{ doc.current_version }}</td>
+                    <td style="font-family: var(--font-mono); font-size: 0.85rem;">{{ doc.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td><a href="{{ url_for('documents.view_document', document_id=doc.document_id) }}" class="btn btn-sm btn-secondary">View</a></td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="text-center" style="padding: 2rem; color: var(--text-muted);">No documents uploaded yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card" style="padding: 0;">
+    <div class="card-header"><h3 class="card-title">Digital Evidence</h3></div>
+    <div class="table-wrapper">
+        <table class="data-table">
+            <colgroup>
+                <col style="width: 18%;">
+                <col style="width: 12%;">
+                <col style="width: 28%;">
+                <col style="width: 14%;">
+                <col style="width: 16%;">
+                <col style="width: 12%;">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>Evidence ID</th>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Custodian</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ev in evidence_items %}
+                <tr>
+                    <td><span class="evidence-id">{{ ev.evidence_id }}</span></td>
+                    <td>{{ ev.type }}</td>
+                    <td><strong>{{ ev.name }}</strong></td>
+                    <td>
+                        <span class="badge {% if ev.status == 'VERIFIED' %}badge-success{% elif 'TAMPER' in ev.status %}badge-danger{% elif 'PENDING' in ev.status %}badge-warning{% else %}badge-info{% endif %}">{{ ev.status }}</span>
+                    </td>
+                    <td>{{ ev.current_custodian.name }}</td>
+                    <td><a href="{{ url_for('evidence.view_evidence', evidence_id=ev.evidence_id) }}" class="btn btn-sm btn-secondary">Dossier</a></td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="text-center" style="padding: 2rem; color: var(--text-muted);">No evidence registered yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

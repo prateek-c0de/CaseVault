@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block header_title %}Create New Case{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <div class="card-header">
+        <h3 class="card-title">Investigation Details</h3>
+    </div>
+    <form method="POST" action="{{ url_for('cases.create') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        
+        <div class="grid-2">
+            <div class="form-group">
+                <label class="form-label" for="case_number">Case Number <span class="required">*</span></label>
+                <input type="text" id="case_number" name="case_number" class="form-control" placeholder="e.g. CASE-2026-042" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="case_type">Case Type <span class="required">*</span></label>
+                <select id="case_type" name="case_type" class="form-control" required>
+                    <option value="General Investigation">General Investigation</option>
+                    <option value="Cyber Crime">Cyber Crime</option>
+                    <option value="Financial Fraud">Financial Fraud</option>
+                    <option value="Narcotics">Narcotics</option>
+                    <option value="Homicide">Homicide</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="title">Case Title <span class="required">*</span></label>
+            <input type="text" id="title" name="title" class="form-control" placeholder="Short description of the case" required>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="description">Detailed Description</label>
+            <textarea id="description" name="description" class="form-control" rows="4" placeholder="Full incident report or preliminary details..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="investigating_officer_name">Investigating Officer Name</label>
+            <input type="text" id="investigating_officer_name" name="investigating_officer_name" class="form-control" placeholder="e.g. Inspector John Doe">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+            <a href="{{ url_for('cases.list_cases') }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Create Case</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

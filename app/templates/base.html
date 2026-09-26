@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block page_title %}Secure Evidence Platform{% endblock %} | SIH 2026</title>
+    <title>{% block page_title %}CaseVault{% endblock %} | Secured Case Files</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -13,66 +13,120 @@
 {% if session.get('user_id') %}
 
 <div class="app-layout">
-    <!-- ── Sidebar ─────────────────────────────── -->
-    <aside class="sidebar" id="sidebar" aria-label="Main Navigation">
-        <div class="sidebar-header">
-            <div class="brand">
-                <span class="brand-icon" aria-hidden="true">&#128110;</span>
-                <div>
-                    <div class="brand-name">SECURE EVIDENCE</div>
-                    <span class="brand-sub">Chain-of-Custody</span>
-                </div>
-            </div>
+    <!-- ── Animated Dock Sidebar ─────────────── -->
+    <aside class="sidebar dock-sidebar" id="sidebar" aria-label="Main Navigation">
+        <div class="dock-brand">
+            <img src="{{ url_for('static', filename='img/casevault-logo.png') }}" class="dock-brand-img" alt="CaseVault Logo">
+            <span class="dock-brand-text">CASEVAULT</span>
         </div>
 
-        <nav class="sidebar-nav" aria-label="Primary">
-            <div class="nav-group-label">MAIN</div>
+        <nav class="dock-nav" id="dock-nav" aria-label="Primary">
             <a href="{{ url_for('dashboard.index') }}"
-               class="nav-item {% if request.endpoint == 'dashboard.index' %}active{% endif %}"
-               aria-current="{% if request.endpoint == 'dashboard.index' %}page{% endif %}">
-                <span class="nav-icon" aria-hidden="true">&#9632;</span> Dashboard
+               class="dock-item {% if request.endpoint == 'dashboard.index' %}active{% endif %}"
+               aria-label="Dashboard">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                <span class="dock-label">Dashboard</span>
             </a>
+            
+            <a href="{{ url_for('cases.list_cases') }}"
+               class="dock-item {% if request.endpoint and 'cases' in request.endpoint %}active{% endif %}"
+               aria-label="Cases">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                <span class="dock-label">Cases</span>
+            </a>
+            
             <a href="{{ url_for('evidence.list_evidence') }}"
-               class="nav-item {% if request.endpoint in ['evidence.list_evidence','evidence.view_evidence'] %}active{% endif %}">
-                <span class="nav-icon" aria-hidden="true">&#128193;</span> Evidence Registry
+               class="dock-item {% if request.endpoint in ['evidence.list_evidence','evidence.view_evidence'] %}active{% endif %}"
+               aria-label="Evidence">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <span class="dock-label">Evidence</span>
             </a>
 
-            {% if session.get('role') in ['Administrator', 'Evidence Collector'] %}
-            <div class="nav-group-label">ACTIONS</div>
+            {% if session.get('role') in ['Administrator', 'Evidence Collector', 'Investigating Officer'] %}
+            <div class="dock-separator"></div>
+            
+            <a href="{{ url_for('cases.create') }}"
+               class="dock-item {% if request.endpoint == 'cases.create' %}active{% endif %}"
+               aria-label="New Case">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                <span class="dock-label">New Case</span>
+            </a>
+            
             <a href="{{ url_for('evidence.register') }}"
-               class="nav-item {% if request.endpoint == 'evidence.register' %}active{% endif %}">
-                <span class="nav-icon" aria-hidden="true">&#43;</span> Register Evidence
+               class="dock-item {% if request.endpoint == 'evidence.register' %}active{% endif %}"
+               aria-label="Register Evidence">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                <span class="dock-label">Register</span>
             </a>
             {% endif %}
 
-            <div class="nav-group-label">COMPLIANCE</div>
             {% if session.get('role') in ['Administrator', 'Auditor'] %}
+            <div class="dock-separator"></div>
+            
             <a href="{{ url_for('audit.list_logs') }}"
-               class="nav-item {% if request.endpoint == 'audit.list_logs' %}active{% endif %}">
-                <span class="nav-icon" aria-hidden="true">&#128279;</span> Audit Trail
+               class="dock-item {% if request.endpoint == 'audit.list_logs' %}active{% endif %}"
+               aria-label="Audit Trail">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                <span class="dock-label">Audit Trail</span>
             </a>
             {% endif %}
         </nav>
 
-        <div class="sidebar-footer">
-            <div class="user-role-badge">{{ session.get('role', 'User') }}</div>
-            <a href="{{ url_for('auth.logout') }}" class="logout-link">
-                <span aria-hidden="true">&#128682;</span> Secure Logout
+        <div class="dock-footer">
+            <div class="dock-role-badge">{{ session.get('role', 'User') }}</div>
+            <a href="{{ url_for('auth.logout') }}" class="dock-item dock-logout" aria-label="Logout">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                <span class="dock-label">Logout</span>
             </a>
         </div>
     </aside>
 
     <!-- ── Main ───────────────────────────────── -->
     <div class="main-wrapper">
-        <header class="top-header" role="banner">
-            <div class="header-left">
+        <header class="top-header" role="banner" style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="header-left" style="display: flex; align-items: center; gap: 1rem;">
                 <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle sidebar" aria-expanded="false" aria-controls="sidebar">&#9776;</button>
                 <h1 class="page-title">{% block header_title %}Overview{% endblock %}</h1>
             </div>
-            <div class="header-right">
+                                    <div class="header-center" style="flex-grow: 1; max-width: 400px; margin: 0 2rem;">
+                <style>
+                    @keyframes borderBeamRotation {
+                        0% { transform: translate(-50%, -50%) rotate(0deg); }
+                        100% { transform: translate(-50%, -50%) rotate(360deg); }
+                    }
+                    .search-beam-wrapper {
+                        position: relative; 
+                        overflow: hidden; 
+                        border-radius: 9999px; 
+                        display: flex; 
+                        width: 100%; 
+                        box-shadow: 0 8px 40px rgba(129,140,248,0.2);
+                        transition: all 0.3s ease;
+                    }
+                    .search-beam-wrapper:focus-within, .search-beam-wrapper:hover {
+                        box-shadow: 0 0 40px 4px rgba(129,140,248,0.3);
+                        transform: scale(1.02);
+                    }
+                    .search-btn-icon:hover {
+                        color: rgba(129,140,248,1) !important;
+                    }
+                </style>
+                <div class="search-beam-wrapper">
+                    <div style="position: absolute; content: ' '; display: block; width: 200%; height: 200%; background: linear-gradient(90deg, transparent, rgba(129,140,248, 0.3), rgba(129,140,248, 0.9), rgba(129,140,248, 0.3), transparent); animation: borderBeamRotation 4s infinite linear; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 0;"></div>
+                    <div style="position: relative; z-index: 1; margin: 1.5px; width: 100%; border-radius: 9999px; background: #FFFFFF; display: flex;">
+                        <form action="{{ url_for('search.query') }}" method="GET" style="display: flex; width: 100%; margin: 0; padding: 0;">
+                            <input type="text" name="q" placeholder="Search CaseVault..." style="flex-grow: 1; border: none; background: transparent; padding: 0.6rem 1.25rem; font-family: var(--font-body); font-size: 0.9rem; color: var(--text-primary); outline: none; border-radius: 9999px 0 0 9999px;">
+                            <button type="submit" class="search-btn-icon" style="border: none; background: transparent; padding: 0 1.25rem; color: var(--text-secondary); cursor: pointer; border-radius: 0 9999px 9999px 0; transition: color 0.2s;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+              <div class="header-right">
                 <div class="system-status" aria-label="System status: secure">
                     <span class="status-dot" aria-hidden="true"></span>
-                    <span class="status-text">SECURE NETWORK</span>
+                    <span class="status-text">CASEVAULT NETWORK</span>
                 </div>
             </div>
         </header>
@@ -118,5 +172,7 @@
 {% endif %}
 
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dock.js') }}"></script>
+
 </body>
 </html>

@@ -22,8 +22,8 @@
         <h4 class="form-section-title">1. Case Information</h4>
         <div class="grid-2">
             <div class="form-group">
-                <label class="form-label" for="case_number">Case Reference Number <span class="required">*</span></label>
-                <input type="text" id="case_number" name="case_number" class="form-control" placeholder="e.g., CASE-2026-001" required>
+                <label class="form-label" for="case_number">Case Number <span class="required">*</span></label>
+                <input type="text" id="case_number" name="case_number" class="form-control" placeholder="e.g. CASE-2026-042" required {% if prefill_case %}value="{{ prefill_case.case_number }}" readonly style="background-color: var(--bg-primary);"{% endif %}>
             </div>
             <div class="form-group">
                 <label class="form-label" for="name">Evidence Name <span class="required">*</span></label>

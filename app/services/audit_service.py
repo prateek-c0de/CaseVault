@@ -6,26 +6,28 @@ from app.models import AuditLog
 
 class AuditService:
     @staticmethod
-    def _calculate_hash(previous_hash, canonical_event_data):
-        data = f"{previous_hash}{canonical_event_data}"
+    def _calculate_hash(previous_hash, event_type, user_id, evidence_id, case_id, document_id, canonical_event_data):
+        data = f"{previous_hash}{event_type}{user_id}{evidence_id}{case_id}{document_id}{canonical_event_data}"
         return hashlib.sha256(data.encode('utf-8')).hexdigest()
 
     @staticmethod
-    def create_event(event_type, event_data, user_id=None, evidence_id=None):
-        # Get the previous hash from the last audit log
-        last_log = AuditLog.query.order_by(AuditLog.id.desc()).first()
-        previous_hash = last_log.current_hash if last_log else "GENESIS"
+    def create_event(event_type, event_data, user_id=None, evidence_id=None, case_id=None, document_id=None):
+        last_event = AuditLog.query.order_by(AuditLog.id.desc()).first()
+        prev_hash = last_event.current_hash if last_event else 'GENESIS'
         
-        # Create deterministic JSON representation
         canonical_event_data = json.dumps(event_data, sort_keys=True)
-        current_hash = AuditService._calculate_hash(previous_hash, canonical_event_data)
+        current_hash = AuditService._calculate_hash(
+            prev_hash, event_type, user_id, evidence_id, case_id, document_id, canonical_event_data
+        )
         
         audit_log = AuditLog(
             event_type=event_type,
             user_id=user_id,
             evidence_id=evidence_id,
-            event_data=event_data, # store as JSON
-            previous_hash=previous_hash,
+            case_id=case_id,
+            document_id=document_id,
+            event_data=event_data,
+            previous_hash=prev_hash,
             current_hash=current_hash
         )
         db.session.add(audit_log)
@@ -43,7 +45,9 @@ class AuditService:
         
         for log in logs:
             canonical_event_data = json.dumps(log.event_data, sort_keys=True)
-            calculated_hash = AuditService._calculate_hash(expected_previous, canonical_event_data)
+            calculated_hash = AuditService._calculate_hash(
+                expected_previous, log.event_type, log.user_id, log.evidence_id, log.case_id, log.document_id, canonical_event_data
+            )
             
             if log.previous_hash != expected_previous or log.current_hash != calculated_hash:
                 invalid_blocks.append(log.id)

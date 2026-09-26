@@ -13,24 +13,56 @@
 </div>
 
 {# Stat Cards #}
-<div class="grid-4" style="margin-bottom:1.75rem;">
-    <div class="stat-card" style="border-top-color:var(--accent);">
-        <div class="stat-value" style="color:var(--accent);">{{ stats.total_evidence }}</div>
+<div class="grid-4" style="margin-bottom: 2rem;">
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.total_cases }}</div>
+        <div class="stat-label">Total Cases</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.total_evidence }}</div>
         <div class="stat-label">Total Evidence</div>
     </div>
-    <div class="stat-card" style="border-top-color:var(--success);">
-        <div class="stat-value" style="color:var(--success);">{{ stats.my_evidence }}</div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.my_evidence }}</div>
         <div class="stat-label">In My Custody</div>
     </div>
-    <div class="stat-card" style="border-top-color:var(--warning);">
-        <div class="stat-value" style="color:var(--warning);">{{ stats.pending_transfers }}</div>
-        <div class="stat-label">Pending Transfers</div>
-    </div>
-    <div class="stat-card" style="border-top-color:var(--danger);">
-        <div class="stat-value" style="color:var(--danger);">0</div>
+    <div class="stat-card">
+        <div class="stat-value" {% if stats.tamper_alerts_count > 0 %}style="color: var(--danger);"{% else %}style="color: var(--success);"{% endif %}>{{ stats.tamper_alerts_count }}</div>
         <div class="stat-label">Tamper Alerts</div>
     </div>
 </div>
+
+{% if tamper_alerts %}
+<div class="card" style="margin-bottom: 2rem; border-left: 4px solid var(--danger);">
+    <div class="card-header">
+        <h3 class="card-title" style="color: var(--danger);">&#9888; TAMPER DETECTION ALERTS</h3>
+    </div>
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Evidence ID</th>
+                    <th>Name</th>
+                    <th>Custodian</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ev in tamper_alerts %}
+                <tr>
+                    <td><strong>{{ ev.evidence_id }}</strong></td>
+                    <td>{{ ev.name }}</td>
+                    <td>{{ ev.current_custodian.name }}</td>
+                    <td><span class="badge badge-danger">{{ ev.status }}</span></td>
+                    <td><a href="{{ url_for('evidence.view_evidence', evidence_id=ev.evidence_id) }}" class="btn btn-sm btn-secondary">Review</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
 
 <div class="grid-2">
     {# Action Required #}

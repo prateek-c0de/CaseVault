@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block header_title %}Case Management{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <h2 style="margin: 0; color: var(--text-primary);">All Investigations</h2>
+    <a href="{{ url_for('cases.create') }}" class="btn btn-primary">&#43; New Case</a>
+</div>
+
+<div class="card" style="padding: 0;">
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Case Number</th>
+                    <th>Title</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Officer</th>
+                    <th>Created Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for case in cases %}
+                <tr>
+                    <td><span class="evidence-id">{{ case.case_number }}</span></td>
+                    <td><strong>{{ case.title }}</strong></td>
+                    <td>{{ case.case_type }}</td>
+                    <td>
+                        <span class="badge {% if case.status == 'OPEN' %}badge-success{% else %}badge-neutral{% endif %}">{{ case.status }}</span>
+                    </td>
+                    <td>{{ case.investigating_officer_name or (case.investigating_officer.name if case.investigating_officer else 'Unassigned') }}</td>
+                    <td style="font-family: var(--font-mono); font-size: 0.85rem;">{{ case.created_at.strftime('%Y-%m-%d') }}</td>
+                    <td><a href="{{ url_for('cases.view_case', case_id=case.id) }}" class="btn btn-sm btn-secondary">Open Case</a></td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7" class="text-center" style="padding: 2rem; color: var(--text-muted);">No cases found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

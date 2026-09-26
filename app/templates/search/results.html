@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block header_title %}Search Results{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <h2 style="margin: 0; color: var(--text-primary);">Search Results for "{{ query }}"</h2>
+</div>
+
+<div class="grid-2">
+    <div class="card" style="padding: 0;">
+        <div class="card-header"><h3 class="card-title">Cases</h3></div>
+        <div class="table-wrapper">
+            <table class="data-table">
+                <tbody>
+                    {% for case in cases %}
+                    <tr>
+                        <td>
+                            <div><strong style="color: var(--accent);">{{ case.case_number }}</strong></div>
+                            <div style="font-size: 0.85rem;">{{ case.title }}</div>
+                        </td>
+                        <td class="text-right">
+                            <a href="{{ url_for('cases.view_case', case_id=case.id) }}" class="btn btn-sm btn-secondary">Open</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="2" class="text-center" style="color: var(--text-muted); padding: 1rem;">No cases found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card" style="padding: 0;">
+        <div class="card-header"><h3 class="card-title">Evidence</h3></div>
+        <div class="table-wrapper">
+            <table class="data-table">
+                <tbody>
+                    {% for ev in evidence %}
+                    <tr>
+                        <td>
+                            <div><strong style="color: var(--accent);">{{ ev.evidence_id }}</strong></div>
+                            <div style="font-size: 0.85rem;">{{ ev.name }} ({{ ev.type }})</div>
+                        </td>
+                        <td class="text-right">
+                            <a href="{{ url_for('evidence.view_evidence', evidence_id=ev.evidence_id) }}" class="btn btn-sm btn-secondary">Open</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="2" class="text-center" style="color: var(--text-muted); padding: 1rem;">No evidence found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="card col-span-2" style="padding: 0; margin-top: 1rem;">
+        <div class="card-header"><h3 class="card-title">Documents</h3></div>
+        <div class="table-wrapper">
+            <table class="data-table">
+                <tbody>
+                    {% for doc in documents %}
+                    <tr>
+                        <td>
+                            <div><strong style="color: var(--accent);">{{ doc.document_id }}</strong></div>
+                            <div style="font-size: 0.85rem;">{{ doc.title }} ({{ doc.document_type }})</div>
+                        </td>
+                        <td class="text-right">
+                            <a href="{{ url_for('documents.view_document', document_id=doc.document_id) }}" class="btn btn-sm btn-secondary">Open</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="2" class="text-center" style="color: var(--text-muted); padding: 1rem;">No documents found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

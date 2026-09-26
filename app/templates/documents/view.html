@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block header_title %}Document Details{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+    <div>
+        <h2 style="margin: 0 0 0.25rem; font-family: var(--font-mono); font-size: 1.75rem; color: var(--accent);">{{ document.document_id }}</h2>
+        <h3 style="margin: 0; color: var(--text-primary); font-size: 1.25rem;">{{ document.title }}</h3>
+        <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">
+            Case: <a href="{{ url_for('cases.view_case', case_id=document.case_id) }}" style="color: var(--accent);">{{ document.case.case_number }}</a>
+        </div>
+    </div>
+    <div style="display: flex; gap: 1rem; align-items: center;">
+        <span class="badge badge-neutral" style="font-size: 1rem; padding: 0.5rem 1rem;">{{ document.document_type }}</span>
+        <a href="{{ url_for('documents.download_document', document_id=document.document_id) }}" class="btn btn-primary" title="Traceable fingerprint will be generated">⬇ Download Secure Copy</a>
+    </div>
+</div>
+
+<div class="grid-3" style="margin-bottom: 2rem;">
+    <!-- Metadata -->
+    <div class="card col-span-2">
+        <div class="card-header"><h3 class="card-title">Document Metadata</h3></div>
+        <div class="table-wrapper">
+            <table class="meta-table">
+                <tbody>
+                    <tr><th>Status</th><td><span class="badge badge-success">{{ document.status }}</span></td></tr>
+                    <tr><th>Access Level</th><td>{{ document.access_level }}</td></tr>
+                    <tr><th>Uploaded By</th><td>{{ document.created_by.name }}</td></tr>
+                    <tr><th>Upload Time</th><td style="font-family: var(--font-mono);">{{ document.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td></tr>
+                    {% if document.description %}
+                    <tr><th>Description</th><td>{{ document.description }}</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% if document.ai_summary %}
+        <div style="margin-top: 2rem;">
+            <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
+                <h3 class="card-title" style="color: var(--info);">🤖 AI Document Intelligence</h3>
+            </div>
+            <div style="padding: 1rem; background: rgba(14, 165, 233, 0.05); border: 1px solid var(--info-muted); border-radius: var(--radius-md);">
+                <p style="margin-top:0;"><strong>Classification:</strong> <span class="badge badge-info">{{ document.ai_classification }}</span></p>
+                <p><strong>Summary:</strong> {{ document.ai_summary }}</p>
+                <p style="margin-bottom:0;"><strong>Key Information Extract:</strong><br><span style="white-space: pre-wrap; font-family: var(--font-mono); font-size: 0.85rem;">{{ document.ai_key_info }}</span></p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Current File & QR -->
+    <div class="card">
+        <div class="card-header"><h3 class="card-title">Current File</h3></div>
+        <div style="text-align: center; margin-bottom: 1rem;">
+            <img src="{{ url_for('static', filename='qr/' + document.document_id + '.png') }}" alt="QR Code" style="width: 120px; height: 120px; border-radius: var(--radius-md); border: 2px solid var(--border);">
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">Secure Reference QR</div>
+        </div>
+        
+        <div style="margin-bottom: 1rem; padding: 1rem; background: var(--bg-primary); border-radius: 4px; border-left: 3px solid var(--accent);">
+            <div style="font-family: var(--font-mono); font-size: 0.85rem; word-break: break-all; margin-bottom: 0.5rem;">
+                <strong>File:</strong> {{ document.file_name }}<br>
+                <strong>Size:</strong> {{ (document.file_size / 1024)|round(1) }} KB<br>
+                <strong>Type:</strong> {{ document.mime_type }}
+            </div>
+        </div>
+        <div style="margin-bottom: 1.5rem;">
+            <strong style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem;">SHA-256 HASH</strong>
+            <div class="hash-block" style="font-size: 0.75rem;">
+                {{ document.sha256_hash }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid-2">
+    <!-- Modification Workflow -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header"><h3 class="card-title">Modification Workflow</h3></div>
+        
+        <div style="margin-bottom: 1.5rem; padding: 1rem; background: var(--bg-base); border: 1px dashed var(--border); border-radius: var(--radius-md);">
+            <form action="{{ url_for('documents.request_modification', document_id=document.document_id) }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <div class="form-group" style="margin-bottom: 0.5rem;">
+                    <label class="form-label">Request Modification</label>
+                    <textarea name="reason" class="form-control" rows="2" placeholder="State reason for new version/modification..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-secondary btn-sm">Submit Request</button>
+            </form>
+        </div>
+
+        {% if document.modification_requests %}
+        <div style="font-size: 0.85rem;">
+            <strong>Pending & Past Requests:</strong>
+            <ul style="padding-left: 1.2rem; color: var(--text-secondary); margin-top: 0.5rem;">
+            {% for req in document.modification_requests|reverse %}
+                <li style="margin-bottom: 0.75rem;">
+                    <div>{{ req.reason }} - <span class="badge {% if req.status == 'APPROVED' %}badge-success{% elif req.status == 'REJECTED' %}badge-danger{% else %}badge-warning{% endif %}">{{ req.status }}</span></div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">By {{ req.requester.name }} on {{ req.created_at.strftime('%Y-%m-%d') }}</div>
+                    {% if req.status == 'PENDING' and session.get('role') in ['Administrator', 'Investigating Officer'] %}
+                    <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem;">
+                        <form action="{{ url_for('documents.approve_modification', request_id=req.id) }}" method="POST"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/><button type="submit" class="btn btn-sm btn-success">Approve</button></form>
+                        <form action="{{ url_for('documents.reject_modification', request_id=req.id) }}" method="POST"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/><button type="submit" class="btn btn-sm btn-danger">Reject</button></form>
+                    </div>
+                    {% endif %}
+                </li>
+            {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Version History -->
+    <div class="card" style="margin-bottom: 2rem; padding: 0;">
+        <div class="card-header"><h3 class="card-title">Version History</h3></div>
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Version</th>
+                        <th>File Name</th>
+                        <th>Upload Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for version in document.versions|reverse %}
+                    <tr>
+                        <td><strong>v{{ version.version_number }}</strong></td>
+                        <td style="font-family: var(--font-mono); font-size: 0.85rem;">
+                            {{ version.file_name }}<br>
+                            <span class="hash-block" style="display:inline-block; margin-top: 0.25rem; font-size: 0.65rem; max-width: 150px; text-overflow: ellipsis; overflow: hidden;" title="{{ version.sha256_hash }}">{{ version.sha256_hash[:16] }}...</span>
+                        </td>
+                        <td style="font-family: var(--font-mono); font-size: 0.85rem;">{{ version.upload_timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

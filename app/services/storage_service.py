@@ -1,36 +1,28 @@
-import os
-import shutil
-from werkzeug.utils import secure_filename
-from flask import current_app
+import cloudinary
+import cloudinary.uploader
+
+# Paste your credentials from the Cloudinary Dashboard here:
+cloudinary.config(
+  cloud_name = 'your_cloud_name',
+  api_key = 'YOUR_API_KEY_HIDDEN',
+  api_secret = 'YOUR_API_SECRET_HIDDEN',
+  secure = True
+)
 
 class StorageService:
-    def __init__(self):
-        # We can implement a cloud adapter here later (e.g. AWS S3)
-        self.storage_type = 'local'
-        
-    def _get_storage_path(self):
-        return current_app.config['UPLOAD_FOLDER']
-
     def save(self, file, evidence_id):
-        if not file:
+        """
+        Uploads the file to Cloudinary and returns the secure public URL.
+        """
+        try:
+            # Upload to Cloudinary. resource_type="auto" supports images, PDFs, videos, etc.
+            upload_result = cloudinary.uploader.upload(
+                file, 
+                resource_type="auto",
+                folder="casevault_evidence"
+            )
+            # Return the secure Cloud URL
+            return upload_result['secure_url']
+        except Exception as e:
+            print(f"Error uploading to Cloudinary: {e}")
             return None
-        
-        filename = secure_filename(file.filename)
-        # We prepend evidence_id to ensure uniqueness in local storage
-        stored_filename = f"{evidence_id}_{filename}"
-        filepath = os.path.join(self._get_storage_path(), stored_filename)
-        
-        file.save(filepath)
-        return filepath
-
-    def get(self, filepath):
-        if os.path.exists(filepath):
-            return filepath
-        return None
-
-    def delete(self, filepath):
-        if os.path.exists(filepath):
-            os.remove(filepath)
-            return True
-        return False
-

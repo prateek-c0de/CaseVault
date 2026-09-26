@@ -11,8 +11,12 @@ def index():
     
     # Stats
     total_evidence = Evidence.query.count()
+    total_cases = Case.query.count()
     my_evidence = Evidence.query.filter_by(current_custodian_id=user.id).count()
     pending_transfers = CustodyEvent.query.filter_by(receiver_id=user.id, status='PENDING').count()
+    
+    # Tamper alerts
+    tamper_alerts = Evidence.query.filter(Evidence.status.ilike('%TAMPER%')).all()
     
     # Recent activity
     recent_evidence = Evidence.query.order_by(Evidence.id.desc()).limit(5).all()
@@ -27,11 +31,14 @@ def index():
         user=user,
         stats={
             'total_evidence': total_evidence,
+            'total_cases': total_cases,
             'my_evidence': my_evidence,
-            'pending_transfers': pending_transfers
+            'pending_transfers': pending_transfers,
+            'tamper_alerts_count': len(tamper_alerts)
         },
         recent_evidence=recent_evidence,
-        my_pending_transfers=my_pending_transfers
+        my_pending_transfers=my_pending_transfers,
+        tamper_alerts=tamper_alerts
     )
 
 @dashboard_bp.route('/qr/evidence/<path:qr_data>')
