@@ -5,3 +5,5 @@ Pillow
 Werkzeug==3.0.1
 cloudinary
 gunicorn
+Flask-WTF
+Flask-Login
