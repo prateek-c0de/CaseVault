@@ -1,9 +1,10 @@
-Flask==3.0.0
-Flask-SQLAlchemy==3.1.1
-qrcode==7.4.2
-Pillow
-Werkzeug==3.0.1
-cloudinary
-gunicorn
+Flask
+Flask-SQLAlchemy
 Flask-WTF
 Flask-Login
+WTForms
+qrcode
+Pillow
+Werkzeug
+cloudinary
+gunicorn
