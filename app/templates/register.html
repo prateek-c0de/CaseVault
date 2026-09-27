@@ -8,6 +8,10 @@
         <h3 class="text-center" style="font-weight: 900; color: #1e293b; margin-bottom: 25px; letter-spacing: -0.5px;">Create Account</h3>
         
         <form method="POST" action="{{ url_for('auth.register') }}">
+            
+            <!-- THE MAGIC CSRF SECURITY LINE IS RIGHT HERE! -->
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
             <div class="form-group" style="margin-bottom: 15px;">
                 <label style="font-size: 0.85em; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Full Name</label>
                 <input type="text" name="name" class="form-control" required style="padding: 12px; border-radius: 8px; border: 1px solid #cbd5e1; background-color: #f8fafc;">
