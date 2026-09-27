@@ -1,113 +1,30 @@
 {% extends "base.html" %}
-{% block page_title %}Login{% endblock %}
-{% block header_title %}Secure Access{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto mt-20 bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
+    <h2 class="text-3xl font-bold text-slate-800 mb-6 text-center">CaseVault Login</h2>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="mb-4 p-4 rounded-lg bg-red-50 text-red-600 border border-red-200">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
-{% block login_content %}
-<div style="text-align:center;margin-bottom:2rem;">
-    <img src="{{ url_for('static', filename='img/casevault-logo.png') }}" alt="CaseVault Icon" style="width:100%; max-width:110px; border-radius:16px; margin-bottom:1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-    <h1 style="font-family:var(--font-ui);font-size:1.6rem;font-weight:800;margin:0 0 0.25rem;letter-spacing:1.5px;color:var(--text-primary);">CASEVAULT</h1>
-    <p style="color:var(--text-secondary);font-size:0.75rem;font-weight:600;font-family:var(--font-ui);letter-spacing:1.5px;text-transform:uppercase;margin:0;">Secured Case Files &amp; Integrity</p>
-</div>
-
-<div class="card" style="border-top:3px solid var(--accent);border-radius:var(--radius-lg);">
-    <div style="margin-bottom:1.75rem;">
-        <h2 style="font-family:var(--font-ui);font-size:1rem;font-weight:600;margin:0 0 0.3rem;">Authorized Personnel Only</h2>
-        <p style="font-size:0.82rem;color:var(--text-muted);margin:0;">All access attempts are logged and monitored.</p>
-    </div>
-
-    <form method="POST" novalidate>
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-        <div class="form-group">
-            <label class="form-label" for="email">Official Email Address</label>
-            <input type="email" id="email" name="email" class="form-control"
-                   placeholder="officer@agency.gov.in" required autocomplete="username" autofocus
-                   aria-required="true">
+    <form method="POST" action="{{ url_for('auth.login') }}" class="space-y-5">
+        <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
+            <input type="email" name="email" required class="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all">
         </div>
-        <div class="form-group">
-            <label class="form-label" for="password">Password</label>
-            <input type="password" id="password" name="password" class="form-control"
-                   placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
-                   required autocomplete="current-password" aria-required="true">
+        <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+            <input type="password" name="password" required class="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all">
+            <div class="text-right mt-1">
+                <a href="{{ url_for('auth.forgot_password') }}" class="text-xs text-indigo-600 hover:underline">Forgot password?</a>
+            </div>
         </div>
-        
-        <style>
-            .threeui-page-button {
-                position: relative;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                border: 0;
-                font: inherit;
-                text-decoration: none;
-                white-space: nowrap;
-                cursor: pointer;
-                -webkit-font-smoothing: antialiased;
-                width: 100%;
-                margin-top: 1rem;
-            }
-            .threeui-page-button:focus-visible {
-                outline: 2px solid var(--accent);
-                outline-offset: 5px;
-            }
-            .threeui-page-button--meridian {
-                height: 62px;
-                padding: 0 30px;
-                border-radius: 15px;
-                background: #dbe7f6;
-                box-shadow: inset 0 0 0 1px rgba(46, 133, 232, .3);
-            }
-            .threeui-page-button--meridian::before {
-                content: "";
-                position: absolute;
-                inset: 3px 4px 9px;
-                border-radius: 12px;
-                background: linear-gradient(180deg, #6db6ff, #2e85e8);
-                box-shadow: 0 5px 0 #1d6dc4, 0 9px 18px -2px rgba(21, 88, 158, .32), inset 0 1px rgba(255, 255, 255, .5);
-                transition: transform .13s cubic-bezier(.22, .61, .36, 1), box-shadow .13s cubic-bezier(.22, .61, .36, 1);
-            }
-            .threeui-page-button--meridian > span:not(.threeui-page-button__led) {
-                position: relative;
-                z-index: 1;
-                font-size: 15px;
-                font-weight: 600;
-                letter-spacing: -.005em;
-                color: #04182f;
-            }
-            .threeui-page-button--meridian .threeui-page-button__led {
-                position: absolute;
-                z-index: 1;
-                top: 12px;
-                left: 50%;
-                width: 4px;
-                height: 4px;
-                border-radius: 50%;
-                background: rgba(4, 24, 47, .3);
-                transform: translateX(-50%);
-                transition: background .22s ease, box-shadow .22s ease;
-            }
-            .threeui-page-button--meridian:hover::before { 
-                transform: translateY(4px); 
-                box-shadow: 0 1px 0 #1d6dc4, 0 3px 10px -2px rgba(21, 88, 158, .3), inset 0 1px rgba(255, 255, 255, .5); 
-            }
-            .threeui-page-button--meridian:hover .threeui-page-button__led { 
-                background: #04182f; 
-                box-shadow: 0 0 6px rgba(4, 24, 47, .55); 
-            }
-            .threeui-page-button--meridian:active::before {
-                transform: translateY(6px);
-                box-shadow: 0 0px 0 #1d6dc4, 0 1px 2px -1px rgba(21, 88, 158, .2), inset 0 1px rgba(255, 255, 255, .5);
-            }
-        </style>
-        
-        <button type="submit" class="threeui-page-button threeui-page-button--meridian">
-            <span class="threeui-page-button__led"></span>
-            <span>Sign In Securely</span>
-        </button>
+        <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition-all">Log In</button>
     </form>
-</div>
-
-<div style="text-align:center;margin-top:1.25rem;font-size:0.78rem;color:var(--text-muted);">
-    <span style="color:var(--success);" aria-hidden="true">&#9679;</span>&nbsp;
-    All sessions are encrypted &nbsp;|&nbsp; SIH 2026
+    <p class="mt-6 text-center text-sm text-slate-500">Don't have an account? <a href="{{ url_for('auth.register') }}" class="text-indigo-600 font-semibold hover:underline">Sign up</a></p>
 </div>
 {% endblock %}
