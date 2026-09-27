@@ -9,3 +9,5 @@ Werkzeug
 cloudinary
 gunicorn
 python-dotenv
+
+
