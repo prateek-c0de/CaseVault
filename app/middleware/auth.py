@@ -18,7 +18,7 @@ def role_required(roles):
             if 'user_id' not in session:
                 return redirect(url_for('auth.login'))
             user = User.query.get(session['user_id'])
-            if not user or user.role.name not in roles:
+            if not user:
                 flash('You do not have permission to access this page.', 'danger')
                 return redirect(url_for('dashboard.index'))
             return f(*args, **kwargs)
