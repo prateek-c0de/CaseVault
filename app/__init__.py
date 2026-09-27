@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 import os
+import cloudinary  # <-- Added this!
 
 db = SQLAlchemy()
 csrf = CSRFProtect()
@@ -13,7 +14,14 @@ def create_app(config_class='app.config.Config'):
     # Initialize extensions
     db.init_app(app)
     csrf.init_app(app)
-
+    
+    # --- CLOUDINARY SECURE SETUP ---
+    cloudinary.config(
+        cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME'),
+        api_key = os.environ.get('CLOUDINARY_API_KEY'),
+        api_secret = os.environ.get('CLOUDINARY_API_SECRET')
+    )
+    # -------------------------------
     # Ensure upload directory exists
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], '..', 'app', 'static', 'qr'), exist_ok=True)
