@@ -1,18 +1,21 @@
 {% extends "base.html" %}
-{% block content %}
-<div class="max-w-xl mx-auto mt-20 bg-white p-8 rounded-2xl shadow-xl border border-slate-100 text-center">
-    <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">✓</div>
-    <h2 class="text-3xl font-bold text-slate-800 mb-2">Account Created!</h2>
-    <p class="text-slate-500 mb-8">Your account is ready. Before you log in, please save your Recovery Passkey.</p>
-    
-    <div class="bg-slate-50 border border-slate-200 rounded-xl p-6 mb-8">
-        <p class="text-sm font-bold text-red-500 mb-3 uppercase tracking-wider">⚠️ Important: Save This Passkey</p>
-        <p class="text-slate-600 text-sm mb-4">If you ever forget your password, this passkey is the <b>only</b> way to recover your account.</p>
-        <div class="bg-white border-2 border-dashed border-indigo-200 py-4 px-6 rounded-lg text-2xl font-mono font-bold text-indigo-700 tracking-widest">
-            {{ passkey }}
+{% block login_content %}
+<div class="card" style="max-width: 500px; margin: 40px auto; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; text-align: center;">
+    <div class="card-body" style="padding: 40px 30px;">
+        <div style="margin-bottom: 20px;">
+            <svg style="width: 72px; height: 72px; color: #10b981; margin: 0 auto;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         </div>
+        <h3 style="font-weight: 900; color: #1e293b; margin-bottom: 15px;">Account Created!</h3>
+        
+        <p style="color: #475569; font-size: 1.05em; margin-bottom: 25px; line-height: 1.6;">Your account is ready. Below is your highly secure <strong>Recovery Passkey</strong>. You will need this if you ever forget your password.</p>
+        
+        <div style="background-color: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 25px; margin-bottom: 30px;">
+            <h2 style="font-family: monospace; font-size: 1.8em; color: #3b82f6; font-weight: bold; margin: 0; letter-spacing: 3px;">{{ passkey }}</h2>
+        </div>
+        
+        <p style="color: #ef4444; font-weight: bold; font-size: 0.95em; margin-bottom: 30px;">⚠️ Write this down immediately. It will only be shown once.</p>
+        
+        <a href="{{ url_for('auth.login') }}" class="btn btn-primary" style="width: 100%; padding: 14px; border-radius: 8px; font-weight: bold; font-size: 1.05em; background-color: #3b82f6; border: none; text-decoration: none; display: block;">Proceed to Login</a>
     </div>
-
-    <a href="{{ url_for('auth.login') }}" class="inline-block w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition-all">I have saved my passkey, Log In</a>
 </div>
 {% endblock %}
