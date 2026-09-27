@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-xl mx-auto mt-20 bg-white p-8 rounded-2xl shadow-xl border border-slate-100 text-center">
+    <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">✓</div>
+    <h2 class="text-3xl font-bold text-slate-800 mb-2">Account Created!</h2>
+    <p class="text-slate-500 mb-8">Your account is ready. Before you log in, please save your Recovery Passkey.</p>
+    
+    <div class="bg-slate-50 border border-slate-200 rounded-xl p-6 mb-8">
+        <p class="text-sm font-bold text-red-500 mb-3 uppercase tracking-wider">⚠️ Important: Save This Passkey</p>
+        <p class="text-slate-600 text-sm mb-4">If you ever forget your password, this passkey is the <b>only</b> way to recover your account.</p>
+        <div class="bg-white border-2 border-dashed border-indigo-200 py-4 px-6 rounded-lg text-2xl font-mono font-bold text-indigo-700 tracking-widest">
+            {{ passkey }}
+        </div>
+    </div>
+
+    <a href="{{ url_for('auth.login') }}" class="inline-block w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition-all">I have saved my passkey, Log In</a>
+</div>
+{% endblock %}
