@@ -2,6 +2,9 @@
 {% block login_content %}
 <div class="card" style="max-width: 450px; margin: 40px auto; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
     <div class="card-body" style="padding: 40px 30px;">
+        <div style="text-align: center; margin-bottom: 15px;">
+            <img src="{{ url_for('static', filename='img/casevault-logo.png') }}" alt="Logo" style="max-width: 80px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        </div>
         <h3 class="text-center" style="font-weight: 900; color: #1e293b; margin-bottom: 25px; letter-spacing: -0.5px;">CaseVault Login</h3>
         
         <form method="POST" action="{{ url_for('auth.login') }}">
