@@ -127,7 +127,7 @@
         </div>
         
         <div style="background: white; padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.25rem; display: inline-block;">
-            <img src="{{ url_for('static', filename='qr/' + evidence.evidence_id + '.png') }}" alt="QR Code for {{ evidence.evidence_id }}" style="width: 180px; height: 180px; display: block;">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data={{ request.url }}" alt="Evidence QR Code" class="img-fluid" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin: 0 auto; display: block;">
         </div>
         
         <div style="font-family: var(--font-mono); font-size: 1.1rem; color: var(--accent); margin-bottom: 0.5rem; font-weight: 500;">
