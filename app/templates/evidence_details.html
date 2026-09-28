@@ -136,7 +136,7 @@
         <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0 0 1rem; max-width: 200px;">
             Scan to securely access this evidence profile from an authorized device.
         </p>
-        <a href="{{ url_for('static', filename='qr/' + evidence.evidence_id + '.png') }}" download class="btn btn-secondary btn-sm btn-block">Download QR</a>
+       <a href="https://api.qrserver.com/v1/create-qr-code/?size=500x500&data={{ request.url }}" target="_blank" class="btn btn-secondary btn-sm btn-block">Open QR Full Size</a>
     </div>
 </div>
 
